@@ -17,6 +17,23 @@ module AirbrakeTools
   HOUR = 60*60
 
   class << self
+    def init(account, auth_token)
+      AirbrakeAPI.account = account
+      AirbrakeAPI.auth_token = auth_token
+      AirbrakeAPI.secure = true
+
+      if AirbrakeAPI.account.to_s.empty? || AirbrakeAPI.auth_token.to_s.empty?
+        raise("Wrong account name or auth_token!")
+        return
+      end
+    end
+
+    def hot_errors(project_name_or_id)
+      options = {}
+      options[:project_id] = project_id(project_name_or_id)
+      hot(options)
+    end
+
     def cli(argv)
       options = extract_options(argv)
 
