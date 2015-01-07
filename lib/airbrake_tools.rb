@@ -36,12 +36,7 @@ module AirbrakeTools
         need_project_id!(options)
         list_pages = (options[:pages] ? options[:pages] : DEFAULT_LIST_PAGES)
         page = 1
-        all_errors = []
-        while page <= list_pages && errors = AirbrakeAPI.errors(page: page, project_id: options.fetch(:project_id))
-          all_errors += errors
-          page += 1
-        end
-        all_errors
+        errors = errors_with_notices({pages: list_pages}.merge(options))
     end
 
     def cli(argv)
