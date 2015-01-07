@@ -28,7 +28,7 @@ module AirbrakeTools
       end
     end
 
-    def projects
+    def airbrake_projects
         AirbrakeAPI.projects
     end
 
