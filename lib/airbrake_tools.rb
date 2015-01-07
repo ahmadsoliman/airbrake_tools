@@ -28,10 +28,20 @@ module AirbrakeTools
       end
     end
 
-    def hot_errors(project_name_or_id)
-      options = {}
-      options[:project_id] = project_id(project_name_or_id)
-      hot(options)
+    def projects
+        AirbrakeAPI.projects
+    end
+
+    def all_errors(options={})
+        need_project_id!(options)
+        list_pages = (options[:pages] ? options[:pages] : DEFAULT_LIST_PAGES)
+        page = 1
+        all_errors = []
+        while page <= list_pages && errors = AirbrakeAPI.errors(page: page, project_id: options.fetch(:project_id))
+          all_errors += errors
+          page += 1
+        end
+        all_errors
     end
 
     def cli(argv)
@@ -66,8 +76,10 @@ module AirbrakeTools
     end
 
     def hot(options = {})
+      need_project_id!(options)
+      hot_pages = (options[:pages] ? options[:pages] : DEFAULT_HOT_PAGES)
       errors = Array(options[:project_id] || projects.map(&:id)).flat_map do |project_id|
-        errors_with_notices({pages: DEFAULT_HOT_PAGES, project_id: project_id}.merge(options))
+        errors_with_notices({pages: hot_pages, project_id: project_id}.merge(options))
       end
       errors.sort_by{|_,_,f| f }.reverse[0...AirbrakeAPI::Client::PER_PAGE]
     end
